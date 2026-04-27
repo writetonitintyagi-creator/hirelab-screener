@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireLab Candidate Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d14;
+  --s1: #10121a;
+  --s2: #161922;
+  --s3: #1e2130;
+  --border: #252a3a;
+  --border2: #2e3448;
+  --amber: #f59e0b;
+  --amber2: #fbbf24;
+  --amber-dim: #92600a;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --green: #10b981;
+  --green-bg: #052e1c;
+  --red: #ef4444;
+  --red-bg: #2d0a0a;
+  --blue: #3b82f6;
+  --blue-bg: #0d1f3c;
+  --yellow-bg: #2d2000;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* HEADER */
+.header { background: var(--s1); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #000; font-family: 'JetBrains Mono', monospace; }
+.logo-text { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.logo-sub { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.header-spacer { flex: 1; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.status-item { display: flex; align-items: center; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; gap: 4px; padding: 4px 8px; background: var(--s2); border: 1px solid var(--border); border-radius: 4px; }
+.status-item .status-dot { background: var(--text3); }
+.status-item.ok .status-dot { background: var(--green); }
+.status-item.ok { color: var(--green); border-color: #0d3d28; }
+.status-group { display: flex; gap: 6px; }
+
+/* LAYOUT */
+.app-layout { display: flex; flex: 1; min-height: 0; }
+
+/* SIDEBAR */
+.sidebar { width: 200px; background: var(--s1); border-right: 1px solid var(--border); padding: 16px 0; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; font-size: 13px; color: var(--text2); border-left: 3px solid transparent; transition: all 0.15s; }
+.nav-item:hover { background: var(--s2); color: var(--text); }
+.nav-item.active { background: var(--s2); color: var(--amber); border-left-color: var(--amber); }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge { margin-left: auto; background: var(--amber); color: #000; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 16px; }
+.sidebar-bottom { margin-top: auto; padding: 12px 16px; }
+.batch-counter { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+.batch-counter-label { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+.batch-counter-val { font-size: 22px; font-weight: 700; color: var(--amber); font-family: 'JetBrains Mono', monospace; }
+.batch-counter-sub { font-size: 10px; color: var(--text3); }
+
+/* MAIN CONTENT */
+.main-content { flex: 1; overflow-y: auto; background: var(--bg); }
+.tab-pane { display: none; padding: 24px; max-width: 960px; }
+.tab-pane.active { display: block; }
+.tab-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.tab-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+
+/* CARDS */
+.card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* FORM ELEMENTS */
+label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 6px; font-weight: 500; }
+textarea, input[type="text"], input[type="password"], input[type="email"] {
+  width: 100%; background: var(--s2); border: 1px solid var(--border2); color: var(--text);
+  border-radius: 6px; padding: 10px 12px; font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  resize: vertical; transition: border 0.15s; outline: none;
+}
+textarea:focus, input:focus { border-color: var(--amber-dim); }
+textarea { min-height: 100px; }
+.textarea-lg { min-height: 200px; }
+.textarea-xl { min-height: 320px; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { margin-bottom: 14px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Sora', sans-serif; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--amber); color: #000; }
+.btn-primary:hover:not(:disabled) { background: var(--amber2); }
+.btn-secondary { background: var(--s3); color: var(--text); border: 1px solid var(--border2); }
+.btn-secondary:hover:not(:disabled) { background: var(--border2); }
+.btn-success { background: var(--green); color: #000; }
+.btn-success:hover:not(:disabled) { background: #0da671; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* CANDIDATE CARDS */
+.cand-card { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: border 0.15s; }
+.cand-card:hover { border-color: var(--border2); }
+.cand-card.selected { border-color: var(--amber); background: #1a1700; }
+.cand-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border2); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
+.cand-card.selected .cand-check { background: var(--amber); border-color: var(--amber); }
+.cand-check::after { content: '✓'; font-size: 11px; color: #000; display: none; }
+.cand-card.selected .cand-check::after { display: block; }
+.cand-info { flex: 1; }
+.cand-name { font-size: 14px; font-weight: 600; }
+.cand-meta { font-size: 12px; color: var(--text2); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.cand-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.tag-green { background: var(--green-bg); color: var(--green); border: 1px solid #0a4d30; }
+.tag-amber { background: var(--yellow-bg); color: var(--amber); border: 1px solid var(--amber-dim); }
+.tag-red { background: var(--red-bg); color: var(--red); border: 1px solid #5a1010; }
+.tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid #1a3a6a; }
+.cand-reason { font-size: 11px; color: var(--text2); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+.cand-action { flex-shrink: 0; }
+
+/* FIT BADGE */
+.fit-badge { padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.fit-strong { background: var(--green-bg); color: var(--green); }
+.fit-good { background: #0d2a1a; color: #34d399; }
+.fit-partial { background: var(--yellow-bg); color: var(--amber); }
+.fit-weak { background: var(--red-bg); color: var(--red); }
+
+/* ANALYSIS CARD */
+.analysis-card { background: var(--s2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.analysis-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.score-ring { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; border: 3px solid var(--border2); }
+.score-high { border-color: var(--green); color: var(--green); }
+.score-mid { border-color: var(--amber); color: var(--amber); }
+.score-low { border-color: var(--red); color: var(--red); }
+.analysis-name { font-size: 15px; font-weight: 600; }
+.analysis-role { font-size: 12px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+.section-label { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; margin-top: 12px; }
+.pill-list { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { font-size: 11px; padding: 3px 10px; background: var(--s3); border: 1px solid var(--border2); border-radius: 10px; color: var(--text2); }
+.call-point { font-size: 12px; color: var(--text); padding: 6px 10px; background: var(--blue-bg); border-left: 3px solid var(--blue); border-radius: 0 4px 4px 0; margin-bottom: 4px; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { background: var(--s2); color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+.data-table tr:hover td { background: var(--s2); color: var(--text); }
+.data-table tr.fit-strong-row td { background: #0a1a12; }
+
+/* TOGGLE */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 13px; color: var(--text); }
+.toggle-sub { font-size: 11px; color: var(--text3); }
+.toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--s3); border: 1px solid var(--border2); border-radius: 11px; transition: 0.2s; }
+.toggle-slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: var(--text3); border-radius: 50%; transition: 0.2s; }
+.toggle input:checked + .toggle-slider { background: var(--amber-dim); border-color: var(--amber); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--amber); }
+
+/* EMAIL PREVIEW */
+.email-preview { background: var(--s2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text2); white-space: pre-wrap; min-height: 200px; }
+.email-subject-preview { font-size: 13px; color: var(--amber); margin-bottom: 8px; font-weight: 700; }
+
+/* ALERTS */
+.alert { padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px; }
+.alert-info { background: var(--blue-bg); border: 1px solid #1e3a5c; color: #93c5fd; }
+.alert-success { background: var(--green-bg); border: 1px solid #0a4d30; color: #6ee7b7; }
+.alert-warning { background: var(--yellow-bg); border: 1px solid var(--amber-dim); color: var(--amber2); }
+.alert-error { background: var(--red-bg); border: 1px solid #5a1010; color: #fca5a5; }
+
+/* LOADING */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-state { display: flex; align-items: center; gap: 10px; padding: 20px; color: var(--text2); font-size: 13px; }
+
+/* STEP INDICATOR */
+.steps { display: flex; gap: 0; margin-bottom: 24px; }
+.step-item { flex: 1; padding: 10px 12px; background: var(--s2); border: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.step-item:first-child { border-radius: 6px 0 0 6px; }
+.step-item:last-child { border-radius: 0 6px 6px 0; }
+.step-item.done { background: var(--green-bg); color: var(--green); border-color: #0a4d30; }
+.step-item.active { background: var(--yellow-bg); color: var(--amber); border-color: var(--amber-dim); }
+.step-num { font-size: 14px; font-weight: 700; display: block; }
+
+/* LEARNING SUMMARY */
+.learning-box { background: var(--blue-bg); border: 1px solid #1e3a5c; border-radius: var(--radius); padding: 14px; }
+.learning-box pre { font-size: 11px; color: #93c5fd; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+
+/* CANDIDATE SELECT ROW */
+.cand-select-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--s2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; cursor: pointer; }
+.cand-select-row:hover { border-color: var(--border2); }
+.cand-select-row.active { border-color: var(--amber); background: #1a1700; }
+.cand-select-row .name { font-size: 13px; font-weight: 600; flex: 1; }
+.cand-select-row .meta { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* RESPONSIVE */
+@media (max-width: 700px) { .input-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">HL</div>
+    <div>
+      <div class="logo-text">HireLab Screener</div>
+      <div class="logo-sub">Candidate Intelligence Tool</div>
+    </div>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="status-group">
+    <div class="status-item" id="status-server"><span class="status-dot"></span>Server</div>
+    <div class="status-item" id="status-sheets"><span class="status-dot"></span>Sheets</div>
+    <div class="status-item" id="status-gmail"><span class="status-dot"></span>Gmail</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-item active" data-tab="setup" onclick="switchTab('setup')">
+      <span class="nav-icon">⚙️</span> Setup
+    </div>
+    <div class="nav-item" data-tab="shortlist" onclick="switchTab('shortlist')">
+      <span class="nav-icon">🔍</span> Shortlist
+      <span class="nav-badge" id="badge-shortlist" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-tab="analyse" onclick="switchTab('analyse')">
+      <span class="nav-icon">📋</span> Analyse
+      <span class="nav-badge" id="badge-analyse" style="display:none">0</span>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" data-tab="review" onclick="switchTab('review')">
+      <span class="nav-icon">📊</span> Review
+    </div>
+    <div class="nav-item" data-tab="email" onclick="switchTab('email')">
+      <span class="nav-icon">📧</span> Email
+    </div>
+    <div class="nav-item" data-tab="whatsapp" onclick="switchTab('whatsapp')">
+      <span class="nav-icon">💬</span> WhatsApp
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" data-tab="learning" onclick="switchTab('learning')">
+      <span class="nav-icon">📚</span> Learning
+    </div>
+    <div class="nav-item" data-tab="booleans" onclick="switchTab('booleans')">
+      <span class="nav-icon">🔎</span> Boolean Lib
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="batch-counter">
+        <div class="batch-counter-label">BATCHES DONE</div>
+        <div class="batch-counter-val" id="batch-count">0</div>
+        <div class="batch-counter-sub">of this assignment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- ===== SETUP TAB ===== -->
+    <div class="tab-pane active" id="tab-setup">
+      <div class="tab-title">⚙️ Setup</div>
+      <div class="tab-subtitle">Configure JD, API keys, and review learning summary before starting</div>
+
+      <div class="card">
+        <div class="card-title">📄 Job Description (JD)</div>
+        <div class="field">
+          <label>Paste full JD here — Claude will use this for shortlisting and analysis</label>
+          <textarea id="jd-input" class="textarea-xl" placeholder="Paste complete Job Description here...
+Include: Role, Company type, Location, Experience required, Key skills, Responsibilities, CTC range..."></textarea>
+        </div>
+        <div class="field">
+          <label>Assignment Label (for reference)</label>
+          <input type="text" id="assignment-label" placeholder="e.g. Treasury Manager - Gurugram - Jan 2026">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔗 Google Sheets</div>
+        <div class="field">
+          <label>Google Sheet ID (from sheet URL — the long ID in the middle)</label>
+          <input type="text" id="sheet-id" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+        </div>
+        <div class="field">
+          <label>Sheet Tab Name (optional, default: Sheet1)</label>
+          <input type="text" id="sheet-tab" placeholder="Sheet1">
+        </div>
+        <div class="alert alert-info">
+          💡 Sheet must be shared with your Google Service Account email (see server config).
+          Headers will be auto-created on first push.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📚 Learning Summary</div>
+        <div id="learning-display">
+          <div class="alert alert-info">No learning summary yet. It will build automatically as you process batches.</div>
+        </div>
+        <div style="margin-top: 12px;">
+          <button class="btn btn-secondary btn-sm" onclick="clearLearning()">🗑 Clear Learning</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportLearning()">📋 Copy Learning</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔌 Server Config (rh_server.py)</div>
+        <div class="input-row">
+          <div class="field">
+            <label>Server URL (Railway URL after deployment)</label>
+            <input type="text" id="server-url" value="http://localhost:8080" placeholder="https://your-app.railway.app">
+          </div>
+          <div class="field">
+            <label>Gmail Address (sender)</label>
+            <input type="email" id="gmail-from" placeholder="Soni@hirelabtalent.com">
+          </div>
+        </div>
+        <div class="field">
+          <label>Auth Token (set this same value on Railway as AUTH_TOKEN)</label>
+          <input type="password" id="auth-token" placeholder="Set a secret password e.g. hirelab2025nitin">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-sm" onclick="testConnection()">🔌 Test Connection</button>
+        </div>
+      </div>
+
+      <!-- JD QUALITY CHECKER -->
+      <div class="card" id="jd-quality-card" style="display:none;">
+        <div class="card-title">🔬 JD Quality Check</div>
+        <div id="jd-quality-results"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSetup()">💾 Save Setup & Start</button>
+        <button class="btn btn-secondary" onclick="checkJDQuality()" id="btn-jd-check">🔬 Check JD Quality</button>
+        <button class="btn btn-secondary" onclick="resetAssignment()">🔄 New Assignment</button>
+        <span id="jd-check-loading" style="display:none;"><div class="loading-state"><div class="spinner"></div> Analysing JD...</div></span>
+      </div>
+    </div>
+
+    <!-- ===== SHORTLIST TAB ===== -->
+    <div class="tab-pane" id="tab-shortlist">
+      <div class="tab-title">🔍 Shortlist Candidates</div>
+      <div class="tab-subtitle">Paste Naukri search result batches — Claude will shortlist relevant candidates</div>
+
+      <div class="steps">
+        <div class="step-item done" id="step-jd"><span class="step-num">✓</span>JD Ready</div>
+        <div class="step-item active" id="step-batch"><span class="step-num" id="step-batch-num">1</span>Paste Batch</div>
+        <div class="step-item" id="step-review-batch"><span class="step-num">→</span>Review</div>
+        <div class="step-item" id="step-next"><span class="step-num">→</span>Next Batch</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Naukri Search Result — Batch <span id="current-batch-label">1</span></div>
+        <div class="field">
+          <label>Paste Naukri search result page content here (Ctrl+A, Ctrl+C from Naukri page)</label>
+          <textarea id="batch-input" class="textarea-xl" placeholder="Paste Naukri search result here...
+Select All (Ctrl+A) on Naukri results page and paste here."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runShortlist()" id="btn-shortlist">
+            🔍 Shortlist Candidates
+          </button>
+          <button class="btn btn-secondary" onclick="clearBatchInput()">🗑 Clear</button>
+          <span id="shortlist-loading" style="display:none">
+            <div class="loading-state"><div class="spinner"></div> Analysing batch with Claude API...</div>
+          </span>
+        </div>
+      </div>
+
+      <div id="shortlist-results"></div>
+
+      <div id="shortlist-actions" style="display:none">
+        <div class="divider"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="nextBatch()">➡ Next Batch</button>
+          <button class="btn btn-secondary" onclick="switchTab('analyse')">📋 Go to Analyse →</button>
+          <span id="shortlist-count" style="font-size:13px;color:var(--text2);"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ANALYSE TAB ===== -->
+    <div class="tab-pane" id="tab-analyse">
+      <div class="tab-title">📋 Analyse Candidates</div>
+      <div class="tab-subtitle">Paste detailed CV for each shortlisted candidate — get deep analysis + call points</div>
+
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:16px;">
+
+        <!-- Candidate List -->
+        <div>
+          <div class="card-title" style="padding:0 0 8px 0;">Shortlisted Candidates</div>
+          <div id="analyse-candidate-list">
+            <div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">No candidates shortlisted yet</div></div>
+          </div>
+        </div>
+
+        <!-- CV Input + Analysis -->
+        <div>
+          <div id="analyse-placeholder" class="card">
+            <div class="empty-state">
+              <div class="empty-icon">⬅️</div>
+              <div class="empty-text">Select a candidate from the list to analyse</div>
+            </div>
+          </div>
+
+          <div id="analyse-panel" style="display:none;">
+            <div class="card">
+              <div class="card-title">CV Input — <span id="analyse-candidate-name">—</span></div>
+              <div class="input-row">
+                <div class="field">
+                  <label>Referred By (optional)</label>
+                  <input type="text" id="referred-by" placeholder="e.g. Rahul Singh (candidate from batch 3)">
+                </div>
+                <div class="field">
+                  <label>Source Platform</label>
+                  <select id="source-platform" style="background:var(--s2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:10px;width:100%;font-size:13px;">
+                    <option value="Naukri">Naukri</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Referral">Referral</option>
+                    <option value="Direct">Direct Approach</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Paste complete CV / detailed Naukri profile content here</label>
+                <textarea id="cv-input" class="textarea-xl" placeholder="Paste complete CV here...
+Copy from Naukri profile page or paste CV text."></textarea>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn-primary" onclick="runAnalysis()" id="btn-analyse">
+                  🧠 Analyse CV
+                </button>
+                <span id="analyse-loading" style="display:none">
+                  <div class="loading-state"><div class="spinner"></div> Analysing with Claude API...</div>
+                </span>
+              </div>
+            </div>
+            <div id="analysis-output"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REVIEW TAB ===== -->
+    <div class="tab-pane" id="tab-review">
+      <div class="tab-title">📊 Review & Push to Sheets</div>
+      <div class="tab-subtitle">Review all analysed candidates and push to Google Sheets</div>
+      <div id="review-empty" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-text">No candidates analysed yet. Go to Analyse tab first.</div>
+      </div>
+      <div id="review-content" style="display:none;">
+        <div class="btn-row" style="margin-bottom:16px;">
+          <button class="btn btn-success" onclick="pushAllToSheets()" id="btn-push-sheets">
+            📊 Push All to Google Sheets
+          </button>
+          <button class="btn btn-secondary" onclick="exportToClipboard()">📋 Copy Table</button>
+          <span id="push-status" style="font-size:12px;color:var(--text2);"></span>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="review-table">
+              <thead><tr>
+                <th>Name + Contact</th><th>Role / Company</th><th>CTC / Notice</th>
+                <th>Fit / Score</th><th>📞 Call Points</th><th>Call Status + Actions</th>
+              </tr></thead>
+              <tbody id="review-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EMAIL TAB ===== -->
+    <div class="tab-pane" id="tab-email">
+      <div class="tab-title">📧 Email Candidates</div>
+      <div class="tab-subtitle">Draft and send personalized emails — full control over what to disclose</div>
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:16px;">
+        <div>
+          <div class="card-title" style="padding:0 0 8px 0;">Analysed Candidates</div>
+          <div id="email-candidate-list"><div class="empty-state"><div class="empty-icon">📧</div><div class="empty-text">No candidates yet</div></div></div>
+        </div>
+        <div>
+          <div id="email-placeholder" class="card"><div class="empty-state"><div class="empty-icon">⬅️</div><div class="empty-text">Select a candidate to draft email</div></div></div>
+          <div id="email-panel" style="display:none;">
+            <div class="card">
+              <div class="card-title">📧 Email Controls — <span id="email-candidate-name">—</span></div>
+              <div class="field"><label>Candidate Email</label><input type="email" id="email-to" placeholder="candidate@email.com"></div>
+              <div style="margin-bottom:14px;">
+                <div class="card-title" style="margin-bottom:10px;">Disclosure Settings</div>
+                <div class="toggle-row"><div><div class="toggle-label">Client / Company Name</div><div class="toggle-sub" id="toggle-client-sub">Disclose company name in email</div></div><label class="toggle"><input type="checkbox" id="toggle-client" checked onchange="updateDisclosureNote()"><span class="toggle-slider"></span></label></div>
+                <div class="toggle-row"><div><div class="toggle-label">Salary / CTC Range</div><div class="toggle-sub" id="toggle-salary-sub">Disclose salary range</div></div><label class="toggle"><input type="checkbox" id="toggle-salary" checked onchange="updateDisclosureNote()"><span class="toggle-slider"></span></label></div>
+                <div class="toggle-row"><div><div class="toggle-label">Exact Designation</div><div class="toggle-sub">Show exact role title</div></div><label class="toggle"><input type="checkbox" id="toggle-designation" checked></label></div>
+                <div class="toggle-row"><div><div class="toggle-label">Location</div><div class="toggle-sub">Mention job location</div></div><label class="toggle"><input type="checkbox" id="toggle-location" checked></label></div>
+              </div>
+              <div style="background:var(--yellow-bg);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:14px;margin-bottom:14px;">
+                <div style="font-size:11px;font-weight:700;color:var(--amber);font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">✏️ Custom Instruction</div>
+                <textarea id="email-custom-note" style="min-height:90px;background:var(--s1);border-color:var(--amber-dim);" placeholder="e.g. Client ka naam mat batao..."></textarea>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn-primary" onclick="draftEmail()" id="btn-draft-email">✏️ Generate Email Draft</button>
+                <span id="email-loading" style="display:none"><div class="loading-state"><div class="spinner"></div> Drafting...</div></span>
+              </div>
+            </div>
+            <div id="email-draft-section" style="display:none;">
+              <div class="card">
+                <div class="card-title">📨 Email Draft</div>
+                <div class="field"><label>Subject</label><input type="text" id="email-subject-edit"></div>
+                <div class="field"><label>Body (editable)</label><textarea id="email-body-edit" class="textarea-xl" style="font-family:JetBrains Mono,monospace;font-size:12px;"></textarea></div>
+                <div class="btn-row">
+                  <button class="btn btn-success" onclick="sendEmail()" id="btn-send-email">📤 Send Email</button>
+                  <button class="btn btn-secondary" onclick="draftEmail()">🔄 Regenerate</button>
+                  <span id="send-status" style="font-size:12px;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WHATSAPP TAB ===== -->
+    <div class="tab-pane" id="tab-whatsapp">
+      <div class="tab-title">💬 WhatsApp</div>
+      <div class="tab-subtitle">Send WhatsApp messages via Meta Cloud API</div>
+      <div class="alert alert-warning">⚠️ WhatsApp API credentials pending from freelancer.</div>
+      <div class="card">
+        <div class="card-title">🔑 API Credentials</div>
+        <div class="input-row">
+          <div class="field"><label>Access Token</label><input type="password" id="wa-token" placeholder="EAAxxxx..."></div>
+          <div class="field"><label>Phone Number ID</label><input type="text" id="wa-phone-id" placeholder="1234567890"></div>
+        </div>
+        <div class="input-row">
+          <div class="field"><label>WABA ID</label><input type="text" id="wa-waba-id" placeholder="987654321"></div>
+          <div class="field"><label>Template Name</label><input type="text" id="wa-template" placeholder="hirelab_outreach_v1"></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="saveWAConfig()">💾 Save Credentials</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Send to Candidates</div>
+        <div id="wa-candidate-list"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">No candidates analysed yet</div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== LEARNING TAB ===== -->
+    <div class="tab-pane" id="tab-learning">
+      <div class="tab-title">📚 Learning & Search Tracker</div>
+      <div class="tab-subtitle">Position-wise learning memory + Boolean search string tracker</div>
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;">
+        <div>
+          <div class="card-title" style="padding:0 0 8px 0;">All Positions</div>
+          <div id="position-list-container"><div class="empty-state"><div class="empty-icon">📁</div><div class="empty-text">No positions saved yet.</div></div></div>
+        </div>
+        <div>
+          <div id="learning-placeholder" class="card"><div class="empty-state"><div class="empty-icon">⬅️</div><div class="empty-text">Select a position</div></div></div>
+          <div id="learning-detail" style="display:none;">
+            <div class="card" style="background:var(--yellow-bg);border-color:var(--amber-dim);">
+              <div class="card-title">🔁 Continue This Position Tomorrow</div>
+              <div style="font-size:12px;color:var(--amber2);margin-bottom:12px;">Kal ya kisi bhi naye session mein continue karna ho toh yeh button dabao.</div>
+              <div class="btn-row">
+                <button class="btn btn-primary" onclick="loadPositionIntoSession()" id="btn-load-position">⬆️ Load into Current Session</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePosition()" id="btn-delete-position">🗑 Delete</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">🧠 Learning Summary</div>
+              <textarea id="position-learning-text" class="textarea-lg" style="font-family:JetBrains Mono,monospace;font-size:11px;"></textarea>
+              <div class="btn-row" style="margin-top:10px;">
+                <button class="btn btn-secondary btn-sm" onclick="savePositionLearning()">💾 Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="copyPositionLearning()">📋 Copy</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">🔍 Boolean Search String Tracker</div>
+              <div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:12px;">
+                <div class="card-title" style="margin-bottom:8px;">➕ New Search String</div>
+                <div class="field"><label>Boolean Search String</label><textarea id="new-bool-string" style="min-height:70px;font-family:JetBrains Mono,monospace;font-size:12px;"></textarea></div>
+                <div class="input-row">
+                  <div class="field"><label>Platform</label><select id="new-bool-platform" style="background:var(--s2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px;width:100%;font-size:12px;"><option value="Naukri">Naukri</option><option value="LinkedIn">LinkedIn</option><option value="Monster">Monster</option><option value="Other">Other</option></select></div>
+                  <div class="field"><label>Result Count</label><input type="text" id="new-bool-count" placeholder="e.g. 1977 profiles"></div>
+                </div>
+                <div class="field"><label>Notes</label><input type="text" id="new-bool-notes" placeholder="e.g. Good results, mostly Gurgaon"></div>
+                <button class="btn btn-primary btn-sm" onclick="addBooleanString()">➕ Add String</button>
+              </div>
+              <div id="bool-strings-list"><div class="empty-state" style="padding:20px;"><div class="empty-text">No search strings added yet</div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-title">📅 Session History</div>
+              <div id="session-history-list"><div style="font-size:12px;color:var(--text3);">No sessions recorded yet.</div></div>
+            </div>
+            <div class="card" id="mi-card" style="display:none;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div class="card-title" style="margin:0;">📈 Market Intelligence</div>
+                <div><span id="mi-profiles-seen" style="font-size:10px;color:var(--text3);font-family:JetBrains Mono,monospace;"></span> <span id="mi-last-updated" style="font-size:10px;color:var(--text3);font-family:JetBrains Mono,monospace;"></span></div>
+              </div>
+              <div id="mi-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BOOLEAN LIBRARY TAB ===== -->
+    <div class="tab-pane" id="tab-booleans">
+      <div class="tab-title">🔎 Boolean Search Library</div>
+      <div class="tab-subtitle">Ready-made search strings for Renewable, Electrical & Automation roles</div>
+      <div class="btn-row" style="margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="generateBooleans()" id="btn-gen-booleans">✨ Generate for Current JD</button>
+        <span id="bool-gen-loading" style="display:none;"><div class="loading-state"><div class="spinner"></div> Generating...</div></span>
+      </div>
+      <div id="bool-library-content">
+        <div id="bool-generated-section" style="display:none;"><div class="card"><div class="card-title">✨ Generated for Current JD</div><div id="bool-generated-list"></div></div></div>
+        <div id="bool-static-library"></div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app-layout -->
+
+<script>
+// ============ STATE ============
+var state = {
+  jd: '',
+  assignmentLabel: '',
+  sheetId: '',
+  sheetTab: 'Sheet1',
+  serverUrl: 'http://localhost:8080',
+  gmailFrom: '',
+  learningSummary: '',
+  batchCount: 0,
+  shortlistedCandidates: [],
+  analysedCandidates: [],
+  currentAnalyseCandidate: null,
+  currentEmailCandidate: null,
+  emailDrafts: {},
+  positions: {},
+  currentPositionId: null
+};
+
+function init() {
+  loadFromStorage();
+  updateAllBadges();
+  updateLearningDisplay();
+  updateBatchCounter();
+  testConnection();
+  if (state.jd) document.getElementById('jd-input').value = state.jd;
+  if (state.assignmentLabel) document.getElementById('assignment-label').value = state.assignmentLabel;
+  if (state.sheetId) document.getElementById('sheet-id').value = state.sheetId;
+  if (state.sheetTab) document.getElementById('sheet-tab').value = state.sheetTab;
+  if (state.serverUrl) document.getElementById('server-url').value = state.serverUrl;
+  if (state.gmailFrom) document.getElementById('gmail-from').value = state.gmailFrom;
+  if (state.authToken) document.getElementById('auth-token').value = state.authToken;
+  renderAnalyseCandidateList();
+  renderEmailCandidateList();
+  renderReviewTable();
+  renderWACandidateList();
+}
+function loadFromStorage() {
+  var s = localStorage.getItem('hl_screener_state');
+  if (s) { try { Object.assign(state, JSON.parse(s)); } catch(e) {} }
+}
+function saveToStorage() { localStorage.setItem('hl_screener_state', JSON.stringify(state)); }
+function switchTab(t) {
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelector('[data-tab="'+t+'"]').classList.add('active');
+  if(t==='analyse') renderAnalyseCandidateList();
+  if(t==='email') renderEmailCandidateList();
+  if(t==='review') renderReviewTable();
+  if(t==='whatsapp') renderWACandidateList();
+  if(t==='learning') renderLearningTab();
+  if(t==='booleans') renderBooleanLibrary();
+}
+function saveSetup() {
+  state.jd = document.getElementById('jd-input').value.trim();
+  state.assignmentLabel = document.getElementById('assignment-label').value.trim();
+  state.sheetId = document.getElementById('sheet-id').value.trim();
+  state.sheetTab = document.getElementById('sheet-tab').value.trim() || 'Sheet1';
+  state.serverUrl = document.getElementById('server-url').value.trim() || 'http://localhost:8080';
+  state.gmailFrom = document.getElementById('gmail-from').value.trim();
+  state.authToken = document.getElementById('auth-token').value.trim();
+  if (!state.jd) { alert('JD required!'); return; }
+  var posId = state.currentPositionId;
+  if (!posId || !state.positions[posId]) {
+    posId = 'pos_' + Date.now();
+    state.positions[posId] = { id: posId, label: state.assignmentLabel||'Untitled', jd: state.jd, learningSummary: state.learningSummary||'', booleanStrings: [], sessions: [], createdAt: new Date().toLocaleDateString('en-IN'), lastWorked: new Date().toLocaleDateString('en-IN') };
+    state.currentPositionId = posId;
+  } else {
+    state.positions[posId].label = state.assignmentLabel||state.positions[posId].label;
+    state.positions[posId].jd = state.jd;
+    state.positions[posId].lastWorked = new Date().toLocaleDateString('en-IN');
+  }
+  saveToStorage();
+  showAlert('✅ Setup saved! Position: "'+(state.assignmentLabel||'Untitled')+'" created.', 'success', 'tab-setup');
+  document.getElementById('step-jd').classList.add('done');
+}
+function resetAssignment() {
+  if(!confirm('Reset this assignment?')) return;
+  saveSessionSnapshot();
+  state.batchCount=0; state.shortlistedCandidates=[]; state.analysedCandidates=[]; state.emailDrafts={}; state.learningSummary='';
+  saveToStorage(); updateAllBadges(); updateBatchCounter(); updateLearningDisplay();
+  renderAnalyseCandidateList(); renderEmailCandidateList(); renderReviewTable();
+  document.getElementById('shortlist-results').innerHTML='';
+  document.getElementById('shortlist-actions').style.display='none';
+  document.getElementById('current-batch-label').textContent='1';
+  alert('Assignment reset!');
+}
+function testConnection() {
+  var url = (document.getElementById('server-url')?document.getElementById('server-url').value:state.serverUrl)||'http://localhost:8080';
+  fetch(url+'/health').then(function(){document.getElementById('status-server').classList.add('ok');}).catch(function(){document.getElementById('status-server').classList.remove('ok');});
+}
+function updateLearningDisplay() {
+  var el = document.getElementById('learning-display');
+  if (!state.learningSummary) el.innerHTML='<div class="alert alert-info">No learning summary yet.</div>';
+  else el.innerHTML='<div class="learning-box"><pre>'+escHtml(state.learningSummary)+'</pre></div>';
+}
+function clearLearning() { if(!confirm('Clear?')) return; state.learningSummary=''; saveToStorage(); updateLearningDisplay(); }
+function exportLearning() { navigator.clipboard.writeText(state.learningSummary||'No learning'); alert('Copied!'); }
+function callClaude(sys,msg,cb,retry) {
+  var url = state.serverUrl+'/api/claude';
+  retry = retry||0;
+  var h = {'Content-Type':'application/json'};
+  if(state.authToken) h['X-Auth-Token']=state.authToken;
+  fetch(url,{method:'POST',headers:h,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:sys,messages:[{role:'user',content:msg}]})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.error){cb(null,d.error.message||'API error');return;}
+    var t=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
+    if(!parseJSON(t)&&retry<2){callClaude(sys,msg+'\n\nIMPORTANT: Return ONLY valid JSON.',cb,retry+1);return;}
+    cb(t,null);
+  }).catch(function(e){cb(null,e.message);});
+}
+function parseJSON(t) {
+  t=t.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'');
+  try{return JSON.parse(t);}catch(e){return null;}
+}
+function escHtml(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showAlert(m,t,c) {
+  var el=document.getElementById(c); if(!el)return;
+  var d=document.createElement('div'); d.className='alert alert-'+t; d.textContent=m;
+  el.insertBefore(d,el.firstChild); setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},5000);
+}
+function updateAllBadges() {
+  var sl=state.shortlistedCandidates.length, al=state.analysedCandidates.length;
+  var bsl=document.getElementById('badge-shortlist'), bal=document.getElementById('badge-analyse');
+  if(sl>0){bsl.style.display='inline';bsl.textContent=sl;}else bsl.style.display='none';
+  if(al>0){bal.style.display='inline';bal.textContent=al;}else bal.style.display='none';
+}
+function updateBatchCounter() {
+  document.getElementById('batch-count').textContent=state.batchCount;
+  document.getElementById('current-batch-label').textContent=state.batchCount+1;
+}
+function runShortlist() {
+  var bt=document.getElementById('batch-input').value.trim();
+  if(!bt){alert('Paste Naukri search result first!');return;}
+  if(!state.jd){alert('Save JD in Setup first!');return;}
+  document.getElementById('btn-shortlist').disabled=true;
+  document.getElementById('shortlist-loading').style.display='flex';
+  document.getElementById('shortlist-results').innerHTML='';
+  document.getElementById('shortlist-actions').style.display='none';
+  var sys='You are a recruitment screening engine for HireLab Talent Resource.\n\nRULES:\n- Focus on domain + core skills match ONLY\n- Shortlist maximum 15-25% of candidates\n- Apply learnings from previous batches\n\nCRITICAL: Respond with VALID JSON ONLY.';
+  var jdS=state.jd.length>800?state.jd.substring(0,800)+'...':state.jd;
+  var user='JOB DESCRIPTION:\n'+jdS+'\n\n'+(state.learningSummary?'=== LEARNING FROM PREVIOUS BATCHES ===\n'+state.learningSummary+'\n\n':'')+'=== CANDIDATE BATCH FROM NAUKRI ===\n'+bt+'\n\nRESPOND WITH ONLY THIS JSON:\n{"shortlisted":[{"name":"","current_role":"","company":"","experience":"","ctc":"","location":"","phone":"verified OR not shown","email":"verified OR not shown","match_reason":"","concerns":"","fit_level":"Strong / Good / Moderate"}],"total_in_batch":0,"rejected_count":0,"rejection_patterns":"","learning_update":""}';
+  callClaude(sys,user,function(txt,err){
+    document.getElementById('btn-shortlist').disabled=false;
+    document.getElementById('shortlist-loading').style.display='none';
+    if(err){showAlert('Error: '+err,'error','shortlist-results');return;}
+    var d=parseJSON(txt);
+    if(!d||!d.shortlisted){showAlert('Parse error: '+escHtml(txt.substring(0,200)),'error','shortlist-results');return;}
+    if(d.learning_update){state.learningSummary=(state.learningSummary||'')+'\nBatch '+(state.batchCount+1)+': '+d.learning_update+'\nRejection: '+(d.rejection_patterns||'N/A');updateLearningDisplay();}
+    d.shortlisted.forEach(function(c){
+      var exists=state.shortlistedCandidates.find(function(x){return x.name&&c.name&&x.name.toLowerCase()===c.name.toLowerCase()&&x.company&&c.company&&x.company.toLowerCase()===c.company.toLowerCase();});
+      if(!exists){c.id='c_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);state.shortlistedCandidates.push(c);}
+    });
+    state.batchCount++; updateBatchCounter(); updateAllBadges(); syncLearningToPosition(); saveToStorage();
+    runMarketIntelligence(bt,d);
+    renderShortlistResults(d);
+    document.getElementById('shortlist-actions').style.display='block';
+    document.getElementById('shortlist-count').textContent='Total: '+state.shortlistedCandidates.length+' from '+state.batchCount+' batches';
+    document.getElementById('step-batch-num').textContent=state.batchCount+1;
+  });
+}
+function renderShortlistResults(d) {
+  var html='';
+  var tot=d.total_in_batch||(d.shortlisted.length+(d.rejected_count||0));
+  var pct=tot>0?Math.round((d.shortlisted.length/tot)*100):0;
+  html+='<div class="alert alert-success">✅ Batch '+state.batchCount+' — <strong>'+d.shortlisted.length+'</strong> shortlisted ('+pct+'%) of '+tot+'</div>';
+  if(!d.shortlisted.length) html+='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No matches</div></div>';
+  d.shortlisted.forEach(function(c){
+    var fc=c.fit_level==='Strong'?'tag-green':c.fit_level==='Good'?'tag-blue':'tag-amber';
+    html+='<div class="cand-card selected"><div class="cand-check"></div><div class="cand-info"><div class="cand-name">'+escHtml(c.name)+'</div><div class="cand-meta">'+escHtml(c.current_role)+' @ '+escHtml(c.company)+' | '+escHtml(c.experience)+' | '+escHtml(c.ctc)+'</div><div class="cand-tags"><span class="tag '+fc+'">'+escHtml(c.fit_level)+' Fit</span><span class="tag tag-blue">'+escHtml(c.location)+'</span>'+(c.phone==='verified'?'<span class="tag tag-green">📞</span>':'')+(c.email==='verified'?'<span class="tag tag-green">📧</span>':'')+'</div><div class="cand-reason">✅ '+escHtml(c.match_reason)+(c.concerns?' | ⚠️ '+escHtml(c.concerns):'')+'</div></div></div>';
+  });
+  if(d.rejection_patterns) html+='<div class="alert alert-warning">📊 Rejection patterns: '+escHtml(d.rejection_patterns)+'</div>';
+  document.getElementById('shortlist-results').innerHTML=html;
+}
+function clearBatchInput(){document.getElementById('batch-input').value='';document.getElementById('shortlist-results').innerHTML='';document.getElementById('shortlist-actions').style.display='none';}
+function nextBatch(){document.getElementById('batch-input').value='';document.getElementById('shortlist-results').innerHTML='';document.getElementById('shortlist-actions').style.display='none';document.getElementById('current-batch-label').textContent=state.batchCount+1;document.getElementById('batch-input').focus();window.scrollTo(0,0);}
+function renderAnalyseCandidateList(){
+  var el=document.getElementById('analyse-candidate-list');
+  if(!state.shortlistedCandidates.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">No candidates shortlisted yet</div></div>';return;}
+  var html='';
+  state.shortlistedCandidates.forEach(function(c){
+    var an=state.analysedCandidates.find(function(a){return a.id===c.id;});
+    var ia=state.currentAnalyseCandidate&&state.currentAnalyseCandidate.id===c.id;
+    html+='<div class="cand-select-row'+(ia?' active':'')+'" onclick="selectAnalyseCandidate(\''+c.id+'\')">'+'<div><div class="name">'+escHtml(c.name)+'</div><div class="meta">'+escHtml(c.experience)+' | '+escHtml(c.ctc)+'</div></div>'+(an?'<span class="tag tag-green" style="font-size:9px;">✓</span>':'<span class="tag" style="font-size:9px;background:var(--s3);">Pending</span>')+'</div>';
+  });
+  el.innerHTML=html;
+}
+function selectAnalyseCandidate(id){
+  var c=state.shortlistedCandidates.find(function(x){return x.id===id;});
+  if(!c)return;
+  state.currentAnalyseCandidate=c; saveToStorage();
+  document.getElementById('analyse-placeholder').style.display='none';
+  document.getElementById('analyse-panel').style.display='block';
+  document.getElementById('analyse-candidate-name').textContent=c.name;
+  document.getElementById('cv-input').value='';
+  document.getElementById('analysis-output').innerHTML='';
+  var ex=state.analysedCandidates.find(function(a){return a.id===id;});
+  if(ex) renderAnalysisOutput(ex);
+  renderAnalyseCandidateList();
+}
+function runAnalysis(){
+  var cv=document.getElementById('cv-input').value.trim();
+  if(!cv){alert('Paste CV first!');return;}
+  if(!state.currentAnalyseCandidate){alert('Select a candidate!');return;}
+  if(!state.jd){alert('Save JD first!');return;}
+  var rb=document.getElementById('referred-by')?document.getElementById('referred-by').value.trim():'';
+  var sp=document.getElementById('source-platform')?document.getElementById('source-platform').value:'Naukri';
+  document.getElementById('btn-analyse').disabled=true;
+  document.getElementById('analyse-loading').style.display='flex';
+  document.getElementById('analysis-output').innerHTML='';
+  var c=state.currentAnalyseCandidate;
+  var sys='You are a senior recruitment analyst for HireLab Talent Resource.\nScoring: 9-10=Perfect, 7-8=Strong, 5-6=Partial, 3-4=Weak, 1-2=Reject\nCRITICAL: Respond with VALID JSON ONLY.';
+  var jdS=state.jd.length>800?state.jd.substring(0,800)+'...':state.jd;
+  var user='JD:\n'+jdS+'\n\nCANDIDATE:\nName: '+c.name+'\nRole: '+c.current_role+'\nCompany: '+c.company+'\nExp: '+c.experience+'\nCTC: '+c.ctc+'\n\nCV:\n'+cv+'\n\nRESPOND WITH ONLY:{"name":"","fit":"Strong/Good/Partial/Weak Fit","fit_score":8,"current_role":"","company":"","experience":"","ctc":"","notice_period":"","location":"","phone":"","email":"","strengths":[],"gaps":[],"call_clarity_points":[],"recommended_action":"Proceed/Consider/Skip","notes":""}';
+  callClaude(sys,user,function(txt,err){
+    document.getElementById('btn-analyse').disabled=false;
+    document.getElementById('analyse-loading').style.display='none';
+    if(err){showAlert('Error: '+err,'error','analysis-output');return;}
+    var d=parseJSON(txt);
+    if(!d||!d.name){showAlert('Parse error','error','analysis-output');return;}
+    d.id=c.id; d.referred_by=rb||''; d.source_platform=sp||'Naukri';
+    var idx=state.analysedCandidates.findIndex(function(a){return a.id===c.id;});
+    if(idx>=0) state.analysedCandidates[idx]=d; else state.analysedCandidates.push(d);
+    updateAllBadges(); saveToStorage(); renderAnalyseCandidateList(); renderAnalysisOutput(d);
+  });
+}
+function renderAnalysisOutput(d){
+  var sc=d.fit_score||0;
+  var sc2=sc>=8?'score-high':sc>=6?'score-mid':'score-low';
+  var fc=d.fit==='Strong Fit'?'fit-strong':d.fit==='Good Fit'?'fit-good':d.fit==='Partial Fit'?'fit-partial':'fit-weak';
+  var html='<div class="analysis-card"><div class="analysis-header"><div class="score-ring '+sc2+'">'+sc+'</div><div><div class="analysis-name">'+escHtml(d.name)+'</div><div class="analysis-role">'+escHtml(d.current_role||'')+' @ '+escHtml(d.company||'')+'</div></div><span class="fit-badge '+fc+'" style="margin-left:auto;">'+escHtml(d.fit)+'</span></div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">'+metaBox('💼 Exp',d.experience)+metaBox('💰 CTC',d.ctc)+metaBox('⏰ Notice',d.notice_period)+metaBox('📍 Location',d.location)+'</div>';
+  if(d.phone||d.email) html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'+metaBox('📞 Phone',d.phone)+metaBox('📧 Email',d.email)+'</div>';
+  if(d.strengths&&d.strengths.length){html+='<div class="section-label">✅ Strengths</div><div class="pill-list">';d.strengths.forEach(function(s){html+='<span class="pill">'+escHtml(s)+'</span>';});html+='</div>';}
+  if(d.gaps&&d.gaps.length){html+='<div class="section-label">⚠️ Gaps</div><div class="pill-list">';d.gaps.forEach(function(g){html+='<span class="pill" style="background:var(--red-bg);border-color:#5a1010;color:var(--red);">'+escHtml(g)+'</span>';});html+='</div>';}
+  if(d.call_clarity_points&&d.call_clarity_points.length){html+='<div class="section-label">📞 Call Clarity Points</div>';d.call_clarity_points.forEach(function(p){html+='<div class="call-point">• '+escHtml(p)+'</div>';});}
+  var ac=d.recommended_action==='Proceed'?'var(--green)':d.recommended_action==='Consider'?'var(--amber)':'var(--red)';
+  html+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;"><span style="font-size:12px;color:var(--text3);">Action:</span><span style="font-weight:700;color:'+ac+';">'+escHtml(d.recommended_action)+'</span></div></div>';
+  document.getElementById('analysis-output').innerHTML=html;
+  document.getElementById('analysis-output').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function metaBox(l,v){return '<div style="background:var(--s3);border:1px solid var(--border2);border-radius:4px;padding:8px;"><div style="font-size:9px;color:var(--text3);font-family:\'JetBrains Mono\',monospace;margin-bottom:3px;">'+escHtml(l)+'</div><div style="font-size:12px;font-weight:600;">'+escHtml(v||'—')+'</div></div>';}
+var CALL_STATUSES=[{value:'pending',label:'Pending',color:'var(--text3)'},{value:'call_no_answer',label:'📵 No Answer',color:'var(--amber)'},{value:'call_busy',label:'📵 Busy',color:'var(--amber)'},{value:'spoke',label:'📞 Spoke',color:'var(--blue)'},{value:'interested',label:'✅ Interested',color:'var(--green)'},{value:'not_interested',label:'❌ Not Interested',color:'var(--red)'},{value:'emailed',label:'📧 Emailed',color:'#a78bfa'},{value:'wa_sent',label:'💬 WA Sent',color:'#34d399'},{value:'submitted',label:'🚀 Submitted',color:'var(--green)'}];
+function renderReviewTable(){
+  var em=document.getElementById('review-empty'),ct=document.getElementById('review-content');
+  if(!state.analysedCandidates.length){em.style.display='block';ct.style.display='none';return;}
+  em.style.display='none';ct.style.display='block';
+  var html='';
+  state.analysedCandidates.forEach(function(c){
+    var fc=c.fit==='Strong Fit'?'fit-strong':c.fit==='Good Fit'?'fit-good':c.fit==='Partial Fit'?'fit-partial':'fit-weak';
+    var cs=c.status||'pending';
+    var so=CALL_STATUSES.find(function(s){return s.value===cs;})||CALL_STATUSES[0];
+    var sf=cs==='call_no_answer'||cs==='call_busy';
+    html+='<tr id="row_'+c.id+'">'+'<td><strong>'+escHtml(c.name)+'</strong><div style="font-size:10px;color:var(--text3);">📞 '+escHtml(c.phone||'No phone')+'</div><div style="font-size:10px;color:var(--text3);">📧 '+escHtml(c.email||'No email')+'</div></td>'+'<td>'+escHtml(c.current_role||'')+'<br><span style="color:var(--text3);font-size:10px;">'+escHtml(c.company||'')+'</span></td>'+'<td>'+escHtml(c.ctc||'')+'<br><span style="font-size:10px;color:var(--text3);">'+escHtml(c.notice_period||'')+'</span></td>'+'<td><span class="fit-badge '+fc+'">'+escHtml(c.fit||'')+'</span><div style="font-size:12px;font-weight:700;color:var(--amber);margin-top:4px;">'+(c.fit_score||'')+'/10</div></td>'+'<td style="max-width:180px;">'+( c.call_clarity_points||[]).map(function(p){return '<div style="font-size:10px;color:var(--text2);padding:2px 0;border-bottom:1px solid var(--border);">'+escHtml(p)+'</div>';}).join('')+'</td>'+'<td style="min-width:140px;"><select style="background:var(--s2);color:'+so.color+';border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px;width:100%;margin-bottom:4px;font-weight:600;" onchange="updateCandStatus(\''+c.id+'\',this.value)">'+CALL_STATUSES.map(function(s){return '<option value="'+s.value+'"'+(s.value===cs?' selected':'')+'>'+s.label+'</option>';}).join('')+'</select><input type="text" value="'+escHtml(c.call_notes||'')+'" style="width:100%;background:var(--s3);border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:3px 6px;font-size:10px;" onchange="updateCandNotes(\''+c.id+'\',this.value)" placeholder="Notes...">'+( sf?'<div style="display:flex;gap:4px;margin-top:5px;"><button class="btn btn-sm" style="flex:1;padding:4px;font-size:10px;background:var(--blue-bg);color:var(--blue);border:1px solid #1e3a5c;" onclick="quickEmail(\''+c.id+'\')">📧</button><button class="btn btn-sm" style="flex:1;padding:4px;font-size:10px;background:var(--green-bg);color:var(--green);border:1px solid #0a4d30;" onclick="switchTab(\'whatsapp\')">WA</button></div>':'')+'</td></tr>';
+  });
+  document.getElementById('review-tbody').innerHTML=html;
+}
+function updateCandStatus(id,s){var c=state.analysedCandidates.find(function(x){return x.id===id;});if(c){c.status=s;saveToStorage();renderReviewTable();}}
+function updateCandNotes(id,n){var c=state.analysedCandidates.find(function(x){return x.id===id;});if(c){c.call_notes=n;saveToStorage();}}
+function quickEmail(id){state.currentEmailCandidate=null;switchTab('email');setTimeout(function(){selectEmailCandidate(id);},100);}
+function pushAllToSheets(){
+  if(!state.sheetId){alert('Add Google Sheet ID in Setup!');return;}
+  if(!state.analysedCandidates.length){alert('No candidates!');return;}
+  document.getElementById('btn-push-sheets').disabled=true;
+  document.getElementById('push-status').textContent='Pushing...';
+  var headers=['Name','Role','Company','Experience','CTC','Notice','Location','Phone','Email','Fit','Score','Strengths','Gaps','Call Points','Action','Status','Notes'];
+  var rows=state.analysedCandidates.map(function(c){return[c.name||'',c.current_role||'',c.company||'',c.experience||'',c.ctc||'',c.notice_period||'',c.location||'',c.phone||'',c.email||'',c.fit||'',c.fit_score||'',(c.strengths||[]).join('; '),(c.gaps||[]).join('; '),(c.call_clarity_points||[]).join('; '),c.recommended_action||'',c.status||'pending',c.notes||''];});
+  var pc=0,er=0;
+  function pushNext(i){
+    if(i>=rows.length){document.getElementById('btn-push-sheets').disabled=false;document.getElementById('push-status').textContent=er===0?'✅ '+pc+' rows pushed!':pc+' pushed, '+er+' errors';document.getElementById('push-status').style.color=er===0?'var(--green)':'var(--red)';return;}
+    fetch(state.serverUrl+'/api/sheets',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},state.authToken?{'X-Auth-Token':state.authToken}:{}),body:JSON.stringify({sheet_id:state.sheetId,sheet_tab:state.sheetTab,rows:i===0?[headers,rows[0]]:[rows[i]]})})
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.success)pc+=(i===0?2:1);else er++;pushNext(i===0?1:i+1);})
+    .catch(function(){er++;pushNext(i===0?1:i+1);});
+  }
+  pushNext(0);
+}
+function exportToClipboard(){
+  var rows=[['Name','Role','CTC','Exp','Notice','Location','Fit','Score','Call Points']];
+  state.analysedCandidates.forEach(function(c){rows.push([c.name,c.current_role,c.ctc,c.experience,c.notice_period,c.location,c.fit,c.fit_score,(c.call_clarity_points||[]).join(' | ')]);});
+  navigator.clipboard.writeText(rows.map(function(r){return r.join('\t');}).join('\n'));alert('Copied! Paste in Excel.');
+}
+function renderEmailCandidateList(){
+  var el=document.getElementById('email-candidate-list');
+  if(!state.analysedCandidates.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📧</div><div class="empty-text">No candidates</div></div>';return;}
+  var html='';
+  state.analysedCandidates.forEach(function(c){
+    var ia=state.currentEmailCandidate&&state.currentEmailCandidate.id===c.id;
+    html+='<div class="cand-select-row'+(ia?' active':'')+'" onclick="selectEmailCandidate(\''+c.id+'\')">'+'<div><div class="name">'+escHtml(c.name)+'</div><div class="meta">'+escHtml(c.fit||'')+' | '+( c.fit_score||'?')+'</div></div>'+(state.emailDrafts[c.id]?'<span class="tag tag-green" style="font-size:9px;">Draft</span>':'')+'</div>';
+  });
+  el.innerHTML=html;
+}
+function selectEmailCandidate(id){
+  var c=state.analysedCandidates.find(function(x){return x.id===id;});
+  if(!c)return;
+  state.currentEmailCandidate=c;
+  document.getElementById('email-placeholder').style.display='none';
+  document.getElementById('email-panel').style.display='block';
+  document.getElementById('email-candidate-name').textContent=c.name;
+  document.getElementById('email-to').value=c.email||'';
+  document.getElementById('email-custom-note').value='';
+  var dr=state.emailDrafts[id];
+  if(dr){document.getElementById('email-draft-section').style.display='block';document.getElementById('email-subject-edit').value=dr.subject||'';document.getElementById('email-body-edit').value=dr.body||'';}
+  else document.getElementById('email-draft-section').style.display='none';
+  renderEmailCandidateList();
+}
+function updateDisclosureNote(){
+  var co=document.getElementById('toggle-client').checked,so=document.getElementById('toggle-salary').checked;
+  document.getElementById('toggle-client-sub').textContent=co?'Client name WILL be mentioned':'Client name will NOT be mentioned';
+  document.getElementById('toggle-salary-sub').textContent=so?'Salary WILL be mentioned':'Salary will NOT be mentioned';
+}
+function draftEmail(){
+  if(!state.currentEmailCandidate){alert('Select candidate!');return;}
+  if(!state.jd){alert('Save JD first!');return;}
+  document.getElementById('btn-draft-email').disabled=true;
+  document.getElementById('email-loading').style.display='flex';
+  var c=state.currentEmailCandidate;
+  var ic=document.getElementById('toggle-client').checked;
+  var is=document.getElementById('toggle-salary').checked;
+  var id=document.getElementById('toggle-designation').checked;
+  var il=document.getElementById('toggle-location').checked;
+  var cn=document.getElementById('email-custom-note').value.trim();
+  var sys='You are HireLab email assistant. Write professional recruitment emails. Respond with VALID JSON ONLY.';
+  var user='JD:\n'+state.jd+'\n\nCANDIDATE:\nName: '+c.name+'\nRole: '+c.current_role+'\nCompany: '+c.company+'\nExp: '+c.experience+'\nCTC: '+c.ctc+'\nStrengths: '+(c.strengths||[]).join(', ')+'\n\nDISCLOSURE:\n- Client: '+(ic?'INCLUDE':'DO NOT mention, say "leading company"')+'\n- Salary: '+(is?'INCLUDE':'DO NOT mention')+'\n- Designation: '+(id?'exact title':'general title')+'\n- Location: '+(il?'mention':'keep vague')+'\n\n'+(cn?'SPECIAL INSTRUCTION: '+cn+'\n\n':'')+'SENDER: Nitin Kumar, HireLab Talent Resource, +91 89501 22628, Soni@hirelabtalent.com\n\nWrite a concise personalized email under 200 words.\nRESPOND WITH:{"subject":"...","body":"..."}';
+  callClaude(sys,user,function(txt,err){
+    document.getElementById('btn-draft-email').disabled=false;
+    document.getElementById('email-loading').style.display='none';
+    if(err){showAlert('Error: '+err,'error','email-panel');return;}
+    var d=parseJSON(txt);
+    if(!d||!d.subject){showAlert('Parse error','error','email-panel');return;}
+    state.emailDrafts[c.id]=d; saveToStorage(); renderEmailCandidateList();
+    document.getElementById('email-draft-section').style.display='block';
+    document.getElementById('email-subject-edit').value=d.subject;
+    document.getElementById('email-body-edit').value=d.body;
+    document.getElementById('send-status').textContent='';
+  });
+}
+function sendEmail(){
+  var to=document.getElementById('email-to').value.trim();
+  var sub=document.getElementById('email-subject-edit').value.trim();
+  var body=document.getElementById('email-body-edit').value.trim();
+  if(!to){alert('Enter email!');return;}
+  document.getElementById('btn-send-email').disabled=true;
+  document.getElementById('send-status').textContent='Sending...';
+  fetch(state.serverUrl+'/api/email',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},state.authToken?{'X-Auth-Token':state.authToken}:{}),body:JSON.stringify({to:to,from:state.gmailFrom||'Soni@hirelabtalent.com',subject:sub,body:body})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    document.getElementById('btn-send-email').disabled=false;
+    if(d.success){document.getElementById('send-status').textContent='✅ Sent!';document.getElementById('send-status').style.color='var(--green)';}
+    else{document.getElementById('send-status').textContent='❌ '+(d.error||'Failed');document.getElementById('send-status').style.color='var(--red)';}
+  }).catch(function(e){document.getElementById('btn-send-email').disabled=false;document.getElementById('send-status').textContent='❌ '+e.message;document.getElementById('send-status').style.color='var(--red)';});
+}
+function renderWACandidateList(){
+  var el=document.getElementById('wa-candidate-list');
+  if(!state.analysedCandidates.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">No candidates</div></div>';return;}
+  var html='';
+  state.analysedCandidates.forEach(function(c){html+='<div class="cand-select-row"><div style="flex:1;"><div class="name">'+escHtml(c.name)+'</div><div class="meta">'+escHtml(c.phone||'No phone')+'</div></div><button class="btn btn-sm btn-secondary" onclick="sendWA(\''+c.id+'\')"'+((!c.phone||c.phone==='not shown')?' disabled':'')+'>Send</button></div>';});
+  el.innerHTML=html;
+}
+function sendWA(id){alert('WhatsApp credentials pending from freelancer.');}
+function saveWAConfig(){state.waToken=document.getElementById('wa-token').value;state.waPhoneId=document.getElementById('wa-phone-id').value;state.waWabaId=document.getElementById('wa-waba-id').value;state.waTemplate=document.getElementById('wa-template').value;saveToStorage();showAlert('✅ WA credentials saved!','success','tab-whatsapp');}
+var currentLearningPositionId=null;
+function renderLearningTab(){renderPositionList();}
+function renderPositionList(){
+  var el=document.getElementById('position-list-container');
+  var ids=Object.keys(state.positions||{});
+  if(!ids.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">&#128193;</div><div class="empty-text">No positions yet.</div></div>';return;}
+  el.innerHTML='';
+  ids.forEach(function(id){
+    var p=state.positions[id],ia=currentLearningPositionId===id,ic=state.currentPositionId===id;
+    var d=document.createElement('div');
+    d.className='cand-select-row'+(ia?' active':''); d.dataset.posId=id;
+    var at=ic?' <span style="font-size:9px;background:var(--green-bg);color:var(--green);padding:1px 5px;border-radius:3px;">ACTIVE</span>':'';
+    d.innerHTML='<div style="flex:1;"><div class="name">'+escHtml(p.label||'Untitled')+at+'</div><div class="meta">'+escHtml(p.createdAt||'')+' | '+(p.booleanStrings||[]).length+' searches</div><div class="meta">Last: '+escHtml(p.lastWorked||'Never')+'</div></div>';
+    d.addEventListener('click',function(){selectLearningPosition(this.dataset.posId);});
+    el.appendChild(d);
+  });
+}
+function selectLearningPosition(id){
+  currentLearningPositionId=id;
+  var p=state.positions[id]; if(!p)return;
+  document.getElementById('learning-placeholder').style.display='none';
+  document.getElementById('learning-detail').style.display='block';
+  document.getElementById('btn-load-position').dataset.posId=id;
+  document.getElementById('btn-delete-position').dataset.posId=id;
+  document.getElementById('position-learning-text').value=p.learningSummary||'';
+  renderBooleanStrings(p);
+  renderSessionHistory(p);
+  renderMarketIntelligence(p);
+  renderPositionList();
+}
+function renderBooleanStrings(pos){
+  var el=document.getElementById('bool-strings-list'),str=pos.booleanStrings||[];
+  if(!str.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No strings added</div>';return;}
+  el.innerHTML='';
+  str.forEach(function(s,i){
+    var uc=s.status==='used'?'var(--green)':s.status==='poor'?'var(--red)':'var(--amber)';
+    var ub=s.status==='used'?'var(--green-bg)':s.status==='poor'?'var(--red-bg)':'var(--yellow-bg)';
+    var ul=s.status==='used'?'&#x2705; Good':s.status==='poor'?'&#x274C; Poor':'&#x23F3; Saved';
+    var item=document.createElement('div');
+    item.style.cssText='background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;';
+    item.innerHTML='<div style="display:flex;gap:8px;margin-bottom:6px;"><div style="flex:1;font-family:JetBrains Mono,monospace;font-size:11px;background:var(--s3);padding:8px;border-radius:4px;">'+escHtml(s.query)+'</div><button data-i="'+i+'" data-a="copy" style="background:none;border:1px solid var(--border2);color:var(--text3);border-radius:4px;padding:3px 7px;font-size:10px;cursor:pointer;">&#x1F4CB;</button><button data-i="'+i+'" data-a="del" style="background:none;border:1px solid var(--border2);color:var(--red);border-radius:4px;padding:3px 7px;font-size:10px;cursor:pointer;">&#x1F5D1;</button></div>'+'<div style="display:flex;gap:8px;flex-wrap:wrap;"><span style="background:'+ub+';color:'+uc+';border:1px solid '+uc+';font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;">'+ul+'</span>'+(s.platform?'<span style="font-size:10px;color:var(--text3);">'+escHtml(s.platform)+'</span>':'')+(s.resultCount?'<span style="font-size:10px;color:var(--text2);">'+escHtml(s.resultCount)+'</span>':'')+'</div>'+(s.notes?'<div style="font-size:11px;color:var(--text3);margin-top:4px;font-style:italic;">'+escHtml(s.notes)+'</div>':'')+'<div style="margin-top:8px;display:flex;gap:4px;"><button data-i="'+i+'" data-a="good" style="background:var(--green-bg);color:var(--green);border:1px solid #0a4d30;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">Good</button><button data-i="'+i+'" data-a="poor" style="background:var(--red-bg);color:var(--red);border:1px solid #5a1010;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">Poor</button><button data-i="'+i+'" data-a="reset" style="background:var(--s3);color:var(--text3);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">Reset</button></div>';
+    item.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var idx=parseInt(b.dataset.i),a=b.dataset.a;if(a==='copy')copyBoolString(idx);else if(a==='del')deleteBoolString(idx);else if(a==='good')markBoolStatus(idx,'used');else if(a==='poor')markBoolStatus(idx,'poor');else if(a==='reset')markBoolStatus(idx,'saved');});
+    el.appendChild(item);
+  });
+}
+function addBooleanString(){if(!currentLearningPositionId){alert('Select position!');return;}var q=document.getElementById('new-bool-string').value.trim();if(!q){alert('Enter string!');return;}var p=state.positions[currentLearningPositionId];if(!p.booleanStrings)p.booleanStrings=[];p.booleanStrings.push({id:'bs_'+Date.now(),query:q,platform:document.getElementById('new-bool-platform').value,resultCount:document.getElementById('new-bool-count').value.trim(),notes:document.getElementById('new-bool-notes').value.trim(),status:'saved',addedOn:new Date().toLocaleDateString('en-IN')});document.getElementById('new-bool-string').value='';document.getElementById('new-bool-count').value='';document.getElementById('new-bool-notes').value='';saveToStorage();renderBooleanStrings(p);}
+function deleteBoolString(i){if(!currentLearningPositionId)return;var p=state.positions[currentLearningPositionId];p.booleanStrings.splice(i,1);saveToStorage();renderBooleanStrings(p);}
+function copyBoolString(i){if(!currentLearningPositionId)return;var p=state.positions[currentLearningPositionId];navigator.clipboard.writeText(p.booleanStrings[i].query);alert('Copied!');}
+function markBoolStatus(i,s){if(!currentLearningPositionId)return;var p=state.positions[currentLearningPositionId];p.booleanStrings[i].status=s;saveToStorage();renderBooleanStrings(p);}
+function renderSessionHistory(pos){var el=document.getElementById('session-history-list'),ss=pos.sessions||[];if(!ss.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);">No sessions yet.</div>';return;}var html='<div style="display:flex;flex-direction:column;gap:6px;">';ss.forEach(function(s){html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px;display:flex;align-items:center;gap:12px;"><div style="font-size:11px;color:var(--text3);min-width:80px;">'+escHtml(s.date)+'</div><div style="font-size:12px;color:var(--text2);"><span style="color:var(--amber);font-weight:600;">'+s.batchesDone+'</span> batches | <span style="color:var(--green);font-weight:600;">'+s.shortlisted+'</span> shortlisted | <span style="color:var(--blue);font-weight:600;">'+s.analysed+'</span> analysed</div></div>';});html+='</div>';el.innerHTML=html;}
+function savePositionLearning(){if(!currentLearningPositionId){alert('Select position!');return;}state.positions[currentLearningPositionId].learningSummary=document.getElementById('position-learning-text').value;saveToStorage();alert('Saved!');}
+function copyPositionLearning(){navigator.clipboard.writeText(document.getElementById('position-learning-text').value);alert('Copied!');}
+function loadPositionIntoSession(){if(!currentLearningPositionId)return;var p=state.positions[currentLearningPositionId];if(!confirm('Load "'+p.label+'" into session?'))return;state.jd=p.jd||state.jd;state.assignmentLabel=p.label;state.learningSummary=p.learningSummary||'';state.currentPositionId=currentLearningPositionId;if(document.getElementById('jd-input'))document.getElementById('jd-input').value=state.jd;if(document.getElementById('assignment-label'))document.getElementById('assignment-label').value=state.assignmentLabel;p.lastWorked=new Date().toLocaleDateString('en-IN');saveToStorage();updateLearningDisplay();showAlert('✅ Position loaded!','success','tab-learning');setTimeout(function(){switchTab('shortlist');},1500);}
+function deletePosition(){if(!currentLearningPositionId)return;var p=state.positions[currentLearningPositionId];if(!confirm('Delete "'+p.label+'"?'))return;delete state.positions[currentLearningPositionId];if(state.currentPositionId===currentLearningPositionId)state.currentPositionId=null;currentLearningPositionId=null;document.getElementById('learning-placeholder').style.display='block';document.getElementById('learning-detail').style.display='none';saveToStorage();renderPositionList();}
+function saveSessionSnapshot(){if(!state.currentPositionId||!state.positions[state.currentPositionId])return;var p=state.positions[state.currentPositionId];if(state.learningSummary)p.learningSummary=state.learningSummary;if(state.batchCount>0){if(!p.sessions)p.sessions=[];p.sessions.unshift({date:new Date().toLocaleDateString('en-IN'),batchesDone:state.batchCount,shortlisted:state.shortlistedCandidates.length,analysed:state.analysedCandidates.length});}p.lastWorked=new Date().toLocaleDateString('en-IN');saveToStorage();}
+function syncLearningToPosition(){if(state.currentPositionId&&state.positions[state.currentPositionId]){state.positions[state.currentPositionId].learningSummary=state.learningSummary;state.positions[state.currentPositionId].lastWorked=new Date().toLocaleDateString('en-IN');}}
+function runMarketIntelligence(bt,sd){if(!state.currentPositionId)return;var sys='You are a recruitment market intelligence analyst. Analyze ALL candidates in batch. VALID JSON ONLY.';var user='POSITION: '+(state.assignmentLabel||'Unknown')+'\nJD: '+state.jd.substring(0,500)+'\nBATCH: '+bt+'\nSHORTLISTED: '+(sd.shortlisted||[]).length+'\nREJECTED: '+(sd.rejected_count||0)+'\nEXISTING: '+JSON.stringify(getExistingMI())+'\n\nRESPOND:{"total_profiles_analyzed":0,"domain_distribution":[{"domain":"","count":0,"insight":""}],"salary_brackets":[{"range":"","count":0}],"skill_distribution":[{"skill":"","count":0,"flag":"low/ok/high"}],"experience_distribution":[{"range":"","count":0}],"location_clusters":[{"city":"","count":0}],"notice_period_pattern":"","supply_signal":"LOW/MEDIUM/HIGH","supply_signal_reason":"","key_observations":[],"recruiter_tips":[]}';callClaude(sys,user,function(txt,err){if(err)return;var d=parseJSON(txt);if(!d)return;if(state.positions[state.currentPositionId]){d.lastUpdated=new Date().toLocaleDateString('en-IN')+' '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});d.batchesAnalyzed=state.batchCount;state.positions[state.currentPositionId].marketInsights=d;syncLearningToPosition();saveToStorage();}});}
+function getExistingMI(){if(!state.currentPositionId)return null;var p=state.positions[state.currentPositionId];return p?(p.marketInsights||null):null;}
+function renderMarketIntelligence(pos){
+  var mi=pos.marketInsights,card=document.getElementById('mi-card'),content=document.getElementById('mi-content');
+  if(!mi){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('mi-profiles-seen').textContent=(mi.total_profiles_analyzed||0)+' profiles';
+  document.getElementById('mi-last-updated').textContent='Updated: '+(mi.lastUpdated||'');
+  var sc=mi.supply_signal==='LOW'?'var(--red)':mi.supply_signal==='HIGH'?'var(--green)':'var(--amber)';
+  var sb=mi.supply_signal==='LOW'?'var(--red-bg)':mi.supply_signal==='HIGH'?'var(--green-bg)':'var(--yellow-bg)';
+  var html='<div style="background:'+sb+';border:1px solid '+sc+';border-radius:6px;padding:12px;margin-bottom:16px;"><span style="font-size:11px;font-weight:700;color:'+sc+';font-family:JetBrains Mono,monospace;">TALENT SUPPLY: '+(mi.supply_signal||'MEDIUM')+'</span><div style="font-size:12px;color:var(--text2);margin-top:4px;">'+escHtml(mi.supply_signal_reason||'')+'</div></div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">';
+  html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;"><div style="font-size:10px;color:var(--text3);font-family:JetBrains Mono,monospace;text-transform:uppercase;margin-bottom:8px;">🏭 Domain Distribution</div>';
+  var td=(mi.domain_distribution||[]).reduce(function(s,d){return s+(d.count||0);},0)||1;
+  (mi.domain_distribution||[]).forEach(function(d){var p=Math.round((d.count/td)*100);var it=d.domain.toLowerCase().includes('renew')||d.domain.toLowerCase().includes('solar');html+='<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:'+(it?'var(--amber)':'var(--text2)')+';font-weight:'+(it?700:400)+';">'+escHtml(d.domain)+'</span><span style="color:var(--text3);">'+d.count+'</span></div><div style="background:var(--s3);border-radius:3px;height:4px;"><div style="background:'+(it?'var(--amber)':'var(--border2)')+';width:'+p+'%;height:100%;border-radius:3px;"></div></div></div>';});
+  html+='</div>';
+  html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;"><div style="font-size:10px;color:var(--text3);font-family:JetBrains Mono,monospace;text-transform:uppercase;margin-bottom:8px;">💰 Salary Brackets</div>';
+  var ms=Math.max.apply(null,(mi.salary_brackets||[]).map(function(s){return s.count||0;}))||1;
+  (mi.salary_brackets||[]).forEach(function(s){var p=Math.round((s.count/ms)*100);html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="font-size:10px;color:var(--text2);min-width:60px;">'+escHtml(s.range)+'</span><div style="flex:1;background:var(--s3);border-radius:3px;height:4px;"><div style="background:var(--green);width:'+p+'%;height:100%;border-radius:3px;"></div></div><span style="font-size:10px;color:var(--text3);">'+s.count+'</span></div>';});
+  html+='</div></div>';
+  if(mi.key_observations&&mi.key_observations.length){html+='<div style="background:var(--blue-bg);border:1px solid #1e3a5c;border-radius:6px;padding:12px;margin-bottom:12px;"><div style="font-size:10px;color:var(--blue);font-family:JetBrains Mono,monospace;text-transform:uppercase;margin-bottom:8px;">💡 Key Observations</div>';mi.key_observations.forEach(function(o){html+='<div style="font-size:12px;color:var(--text2);padding:3px 0;">• '+escHtml(o)+'</div>';});html+='</div>';}
+  if(mi.recruiter_tips&&mi.recruiter_tips.length){html+='<div style="background:var(--yellow-bg);border:1px solid var(--amber-dim);border-radius:6px;padding:12px;"><div style="font-size:10px;color:var(--amber);font-family:JetBrains Mono,monospace;text-transform:uppercase;margin-bottom:8px;">🎯 Recruiter Tips</div>';mi.recruiter_tips.forEach(function(t){html+='<div style="font-size:12px;color:var(--amber2);padding:3px 0;">• '+escHtml(t)+'</div>';});html+='</div>';}
+  content.innerHTML=html;
+}
+function checkJDQuality(){var jd=document.getElementById('jd-input').value.trim();if(!jd){alert('Paste JD first!');return;}document.getElementById('btn-jd-check').disabled=true;document.getElementById('jd-check-loading').style.display='flex';document.getElementById('jd-quality-card').style.display='none';var sys='You are a JD quality analyst. VALID JSON ONLY.';var user='Analyse this JD for sourcing quality:\n'+jd+'\n\nRESPOND:{"overall_score":7,"grade":"B","criteria":[{"name":"Domain Specificity","score":8,"status":"good","issue":"","fix":""},{"name":"Must-Have Skills","score":5,"status":"weak","issue":"Too generic","fix":"Add specific skills"},{"name":"Experience Band","score":9,"status":"good","issue":"","fix":""},{"name":"Company Context","score":4,"status":"missing","issue":"Not mentioned","fix":"Add OEM/EPC/IPP"},{"name":"Exclusion Criteria","score":3,"status":"missing","issue":"No red flags","fix":"Add exclusions"},{"name":"Reporting Structure","score":6,"status":"ok","issue":"Vague","fix":"Specify reporting"}],"missing_info":[],"suggested_jd_additions":[],"sourcing_impact":""}';callClaude(sys,user,function(txt,err){document.getElementById('btn-jd-check').disabled=false;document.getElementById('jd-check-loading').style.display='none';document.getElementById('jd-quality-card').style.display='block';if(err){document.getElementById('jd-quality-results').innerHTML='<div class="alert alert-error">'+escHtml(err)+'</div>';return;}var d=parseJSON(txt);if(!d){document.getElementById('jd-quality-results').innerHTML='<div class="alert alert-error">Parse error</div>';return;}renderJDQuality(d);});}
+function renderJDQuality(d){var sc=d.overall_score||0;var sco=sc>=8?'var(--green)':sc>=6?'var(--amber)':'var(--red)';var scb=sc>=8?'var(--green-bg)':sc>=6?'var(--yellow-bg)':'var(--red-bg)';var html='<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;padding:14px;background:'+scb+';border-radius:6px;"><div style="font-size:36px;font-weight:800;color:'+sco+';font-family:\'JetBrains Mono\',monospace;">'+sc+'/10</div><div><div style="font-size:18px;font-weight:700;color:'+sco+';">Grade: '+escHtml(d.grade||'')+'</div><div style="font-size:12px;color:var(--text2);">'+escHtml(d.sourcing_impact||'')+'</div></div></div>';html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';(d.criteria||[]).forEach(function(c){var st=c.status==='good'?'var(--green)':c.status==='ok'?'var(--amber)':'var(--red)';var sb=c.status==='good'?'var(--green-bg)':c.status==='ok'?'var(--yellow-bg)':'var(--red-bg)';var ic=c.status==='good'?'✅':c.status==='ok'?'⚠️':'❌';html+='<div style="background:'+sb+';border:1px solid '+st+';border-radius:6px;padding:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:600;">'+ic+' '+escHtml(c.name)+'</span><span style="color:'+st+';font-weight:700;">'+c.score+'/10</span></div>'+(c.issue?'<div style="font-size:10px;color:var(--text3);">⚠ '+escHtml(c.issue)+'</div>':'')+(c.fix?'<div style="font-size:10px;color:'+st+';">&#x2192; '+escHtml(c.fix)+'</div>':'')+'</div>';});html+='</div>';if(d.suggested_jd_additions&&d.suggested_jd_additions.length){html+='<div style="background:var(--blue-bg);border:1px solid #1e3a5c;border-radius:6px;padding:12px;"><div style="font-size:10px;color:var(--blue);font-family:JetBrains Mono,monospace;text-transform:uppercase;margin-bottom:8px;">💡 Add to JD</div>';d.suggested_jd_additions.forEach(function(s){html+='<div style="font-size:12px;color:var(--text2);padding:3px 0;">+ '+escHtml(s)+'</div>';});html+='</div>';}document.getElementById('jd-quality-results').innerHTML=html;}
+var BOOL_LIB={"Solar / Renewable Energy":{icon:"☀️",roles:{"Project Manager / EPC":['("project manager" OR "project director") AND ("solar" OR "wind" OR "renewable") AND ("EPC" OR "commissioning" OR "O&M")','("solar PV" OR "wind turbine") AND ("project management" OR "site manager") AND (MW OR GW)','("renewable energy" OR "IPP" OR "solar developer") AND ("project execution" OR "construction manager")'],"Electrical / Design Engineer":['("electrical engineer" OR "design engineer") AND ("solar" OR "wind" OR "BESS") AND ("SCADA" OR "inverter" OR "transformer")','("HV" OR "MV" OR "LV") AND ("solar" OR "renewable") AND ("commissioning" OR "testing") NOT sales'],"Finance / Project Finance":['("project finance" OR "structured finance") AND ("renewable" OR "solar") AND ("DSCR" OR "lender" OR "covenant")','("treasury" OR "fund raising") AND ("renewable energy" OR "IPP") AND ("debt" OR "NCD" OR "ECB")']}},"Electrical & Switchgear":{icon:"⚡",roles:{"Sales / BD Manager":['("sales manager" OR "business development") AND ("switchgear" OR "LV" OR "MV") AND ("Schneider" OR "ABB" OR "Siemens" OR "L&T" OR "Havells")','("channel sales" OR "dealer network") AND ("electrical" OR "switchgear") NOT FMCG NOT pharma'],"Design / Panel Builder":['("panel designer" OR "electrical designer") AND ("MCC" OR "PLC" OR "SCADA") AND ("AutoCAD" OR "EPLAN")','("control panel" OR "power panel") AND ("design") AND ("PLC" OR "HMI" OR "DCS")']}},"Industrial Automation":{icon:"🤖",roles:{"PLC / SCADA Engineer":['("PLC programmer" OR "SCADA engineer") AND ("Siemens" OR "Allen Bradley" OR "Rockwell") AND ("automation")','("TIA Portal" OR "RSLogix" OR "Step 7") AND ("PLC" OR "HMI") AND ("commissioning")','("DCS" OR "SCADA") AND ("Honeywell" OR "ABB" OR "Yokogawa") NOT freshers'],"Sales / Solution Engineer":['("automation sales" OR "solution sales") AND ("PLC" OR "SCADA" OR "drives") AND ("EPC" OR "OEM")','("technical sales") AND ("automation") AND ("Siemens" OR "ABB" OR "Rockwell")']}},"Data Center":{icon:"🏢",roles:{"Critical Facility Engineer":['("data center" OR "critical facility") AND ("MEP" OR "UPS" OR "DG") AND ("operations" OR "maintenance")','("Tier III" OR "Tier IV") AND ("data center") AND ("BMS" OR "DCIM") NOT sales'],"Project Manager":['("data center" OR "DC build") AND ("project manager") AND ("MEP" OR "civil") AND (MW OR kW)','("hyperscale" OR "colocation") AND ("project management" OR "construction")'],"Sales / BD":['("data center") AND ("sales" OR "business development") AND ("enterprise" OR "cloud")','("DCIM" OR "cooling" OR "UPS") AND ("data center sales") AND ("Schneider" OR "Vertiv" OR "Eaton")']}}};
+function renderBooleanLibrary(){
+  var c=document.getElementById('bool-static-library'); if(!c)return;
+  var html='';
+  Object.keys(BOOL_LIB).forEach(function(sec){
+    var s=BOOL_LIB[sec];
+    html+='<div class="card"><div class="card-title">'+s.icon+' '+escHtml(sec)+'</div><div style="display:flex;flex-direction:column;gap:12px;">';
+    Object.keys(s.roles).forEach(function(role){
+      html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;"><div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:8px;">👤 '+escHtml(role)+'</div>';
+      s.roles[role].forEach(function(str){
+        html+='<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><div style="flex:1;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text2);background:var(--s3);padding:8px;border-radius:4px;word-break:break-all;">'+escHtml(str)+'</div><button onclick="copyStaticBool(this,\''+escHtml(str).replace(/'/g,"\\'")+'\')" style="background:var(--s3);border:1px solid var(--border2);color:var(--text3);border-radius:4px;padding:5px 8px;font-size:11px;cursor:pointer;white-space:nowrap;">📋 Copy</button><button onclick="saveToPositionLibrary(this,\''+escHtml(sec)+'\',\''+escHtml(role)+'\',\''+escHtml(str).replace(/'/g,"\\'")+"\')" style=\"background:var(--yellow-bg);border:1px solid var(--amber-dim);color:var(--amber);border-radius:4px;padding:5px 8px;font-size:11px;cursor:pointer;\">+ Save</button></div>";
+      });
+      html+='</div>';
+    });
+    html+='</div></div>';
+  });
+  c.innerHTML=html;
+}
+function copyStaticBool(btn,str){navigator.clipboard.writeText(str);var o=btn.textContent;btn.textContent='✅ Copied!';btn.style.color='var(--green)';setTimeout(function(){btn.textContent=o;btn.style.color='var(--text3)';},2000);}
+function saveToPositionLibrary(btn,sec,role,str){if(!state.currentPositionId){alert('Save a JD first!');return;}var p=state.positions[state.currentPositionId];if(!p.booleanStrings)p.booleanStrings=[];if(p.booleanStrings.find(function(b){return b.query===str;})){alert('Already saved!');return;}p.booleanStrings.push({id:'bs_'+Date.now(),query:str,platform:'Naukri',resultCount:'',notes:sec+' — '+role,status:'saved',addedOn:new Date().toLocaleDateString('en-IN')});saveToStorage();var o=btn.textContent;btn.textContent='✅ Saved!';btn.style.color='var(--green)';setTimeout(function(){btn.textContent=o;btn.style.color='var(--amber)';},2000);}
+function generateBooleans(){if(!state.jd){alert('Save JD first!');return;}document.getElementById('btn-gen-booleans').disabled=true;document.getElementById('bool-gen-loading').style.display='flex';document.getElementById('bool-generated-section').style.display='none';var sys='Boolean search string expert for Naukri.com. VALID JSON ONLY.';var user='JD:\n'+state.jd.substring(0,600)+'\n\nGenerate 5 Boolean strings for Naukri.com.\nRESPOND:{"strings":[{"query":"...","strategy":"Most targeted","expected_results":"Low, high quality"},{"query":"...","strategy":"Broader","expected_results":"Medium"},{"query":"...","strategy":"Adjacent domain","expected_results":"High"},{"query":"...","strategy":"Brand specific","expected_results":"Medium"},{"query":"...","strategy":"Skills focused","expected_results":"Medium"}]}';callClaude(sys,user,function(txt,err){document.getElementById('btn-gen-booleans').disabled=false;document.getElementById('bool-gen-loading').style.display='none';if(err){alert('Error: '+err);return;}var d=parseJSON(txt);if(!d||!d.strings){alert('Could not generate');return;}document.getElementById('bool-generated-section').style.display='block';renderGeneratedBooleans(d.strings);});}
+function renderGeneratedBooleans(ss){var el=document.getElementById('bool-generated-list');var html='';ss.forEach(function(s){html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:var(--amber);">'+escHtml(s.strategy)+'</span><span style="font-size:10px;color:var(--text3);">'+escHtml(s.expected_results||'')+'</span></div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text2);background:var(--s3);padding:8px;border-radius:4px;word-break:break-all;margin-bottom:8px;">'+escHtml(s.query)+'</div><div style="display:flex;gap:6px;"><button onclick="copyStaticBool(this,\''+escHtml(s.query).replace(/'/g,"\\'")+'\')" style="background:var(--s3);border:1px solid var(--border2);color:var(--text3);border-radius:4px;padding:5px 10px;font-size:11px;cursor:pointer;">📋 Copy</button><button onclick="saveToPositionLibrary(this,\'Generated\',\''+escHtml(s.strategy)+'\',\''+escHtml(s.query).replace(/'/g,"\\'")+'\')" style="background:var(--yellow-bg);border:1px solid var(--amber-dim);color:var(--amber);border-radius:4px;padding:5px 10px;font-size:11px;cursor:pointer;">+ Save</button></div></div>';});el.innerHTML=html;}
+init();
+</script>
+</body>
+</html>
