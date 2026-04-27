@@ -332,7 +332,7 @@ Include: Role, Company type, Location, Experience required, Key skills, Responsi
           </div>
           <div class="field">
             <label>Gmail Address (sender)</label>
-            <input type="email" id="gmail-from" placeholder="Soni@hirelabtalent.com">
+            <input type="email" id="gmail-from" placeholder="nitin.kumari@hirelabtalent.com">
           </div>
         </div>
         <div class="field">
@@ -965,7 +965,7 @@ function draftEmail(){
   var il=document.getElementById('toggle-location').checked;
   var cn=document.getElementById('email-custom-note').value.trim();
   var sys='You are HireLab email assistant. Write professional recruitment emails. Respond with VALID JSON ONLY.';
-  var user='JD:\n'+state.jd+'\n\nCANDIDATE:\nName: '+c.name+'\nRole: '+c.current_role+'\nCompany: '+c.company+'\nExp: '+c.experience+'\nCTC: '+c.ctc+'\nStrengths: '+(c.strengths||[]).join(', ')+'\n\nDISCLOSURE:\n- Client: '+(ic?'INCLUDE':'DO NOT mention, say "leading company"')+'\n- Salary: '+(is?'INCLUDE':'DO NOT mention')+'\n- Designation: '+(id?'exact title':'general title')+'\n- Location: '+(il?'mention':'keep vague')+'\n\n'+(cn?'SPECIAL INSTRUCTION: '+cn+'\n\n':'')+'SENDER: Nitin Kumar, HireLab Talent Resource, +91 89501 22628, Soni@hirelabtalent.com\n\nWrite a concise personalized email under 200 words.\nRESPOND WITH:{"subject":"...","body":"..."}';
+  var user='JD:\n'+state.jd+'\n\nCANDIDATE:\nName: '+c.name+'\nRole: '+c.current_role+'\nCompany: '+c.company+'\nExp: '+c.experience+'\nCTC: '+c.ctc+'\nStrengths: '+(c.strengths||[]).join(', ')+'\n\nDISCLOSURE:\n- Client: '+(ic?'INCLUDE':'DO NOT mention, say "leading company"')+'\n- Salary: '+(is?'INCLUDE':'DO NOT mention')+'\n- Designation: '+(id?'exact title':'general title')+'\n- Location: '+(il?'mention':'keep vague')+'\n\n'+(cn?'SPECIAL INSTRUCTION: '+cn+'\n\n':'')+'SENDER: Nitin Kumar, HireLab Talent Resource, +91 89501 22628, nitin.kumari@hirelabtalent.com\n\nWrite a concise personalized email under 200 words.\nRESPOND WITH:{"subject":"...","body":"..."}';
   callClaude(sys,user,function(txt,err){
     document.getElementById('btn-draft-email').disabled=false;
     document.getElementById('email-loading').style.display='none';
@@ -986,7 +986,7 @@ function sendEmail(){
   if(!to){alert('Enter email!');return;}
   document.getElementById('btn-send-email').disabled=true;
   document.getElementById('send-status').textContent='Sending...';
-  fetch(state.serverUrl+'/api/email',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},state.authToken?{'X-Auth-Token':state.authToken}:{}),body:JSON.stringify({to:to,from:state.gmailFrom||'Soni@hirelabtalent.com',subject:sub,body:body})})
+  fetch(state.serverUrl+'/api/email',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},state.authToken?{'X-Auth-Token':state.authToken}:{}),body:JSON.stringify({to:to,from:state.gmailFrom||'nitin.kumari@hirelabtalent.com',subject:sub,body:body})})
   .then(function(r){return r.json();})
   .then(function(d){
     document.getElementById('btn-send-email').disabled=false;
