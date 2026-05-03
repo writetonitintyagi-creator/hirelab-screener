@@ -656,7 +656,8 @@ var state = {
   currentEmailCandidate: null,
   emailDrafts: {},
   positions: {},
-  currentPositionId: null
+  currentPositionId: null,
+  claudeApiKey: ''
 };
 
 function init() {
@@ -672,6 +673,7 @@ function init() {
   if (state.serverUrl) document.getElementById('server-url').value = state.serverUrl;
   if (state.gmailFrom) document.getElementById('gmail-from').value = state.gmailFrom;
   if (state.authToken) document.getElementById('auth-token').value = state.authToken;
+  if (state.claudeApiKey && document.getElementById('claude-api-key')) document.getElementById('claude-api-key').value = state.claudeApiKey;
   renderAnalyseCandidateList();
   renderEmailCandidateList();
   renderReviewTable();
@@ -702,6 +704,7 @@ function saveSetup() {
   state.serverUrl = document.getElementById('server-url').value.trim() || 'http://localhost:8080';
   state.gmailFrom = document.getElementById('gmail-from').value.trim();
   state.authToken = document.getElementById('auth-token').value.trim();
+  state.claudeApiKey = document.getElementById('claude-api-key') ? document.getElementById('claude-api-key').value.trim() : '';
   if (!state.jd) { alert('JD required!'); return; }
   var posId = state.currentPositionId;
   if (!posId || !state.positions[posId]) {
@@ -729,8 +732,14 @@ function resetAssignment() {
   alert('Assignment reset!');
 }
 function testConnection() {
-  var url = (document.getElementById('server-url')?document.getElementById('server-url').value:state.serverUrl)||'http://localhost:8080';
-  fetch(url+'/health').then(function(){document.getElementById('status-server').classList.add('ok');}).catch(function(){document.getElementById('status-server').classList.remove('ok');});
+  var key = state.claudeApiKey || (document.getElementById('claude-api-key') ? document.getElementById('claude-api-key').value.trim() : '');
+  if(key && key.startsWith('sk-ant')) {
+    document.getElementById('status-server').classList.add('ok');
+    document.getElementById('status-server').innerHTML = '<span class="status-dot"></span>API Ready';
+  } else {
+    document.getElementById('status-server').classList.remove('ok');
+    document.getElementById('status-server').innerHTML = '<span class="status-dot"></span>API Key?';
+  }
 }
 function updateLearningDisplay() {
   var el = document.getElementById('learning-display');
