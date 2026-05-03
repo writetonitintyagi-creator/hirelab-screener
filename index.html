@@ -662,6 +662,11 @@ var state = {
 
 function init() {
   loadFromStorage();
+  // Load claude API key from storage
+  if (!state.claudeApiKey) {
+    var ls = localStorage.getItem('hl_screener_state');
+    if (ls) { try { var tmp=JSON.parse(ls); if(tmp.claudeApiKey) state.claudeApiKey=tmp.claudeApiKey; } catch(e){} }
+  }
   updateAllBadges();
   updateLearningDisplay();
   updateBatchCounter();
@@ -1117,6 +1122,9 @@ function saveToPositionLibrary(btn,sec,role,str){if(!state.currentPositionId){al
 function generateBooleans(){if(!state.jd){alert('Save JD first!');return;}document.getElementById('btn-gen-booleans').disabled=true;document.getElementById('bool-gen-loading').style.display='flex';document.getElementById('bool-generated-section').style.display='none';var sys='Boolean search string expert for Naukri.com. VALID JSON ONLY.';var user='JD:\n'+state.jd.substring(0,600)+'\n\nGenerate 5 Boolean strings for Naukri.com.\nRESPOND:{"strings":[{"query":"...","strategy":"Most targeted","expected_results":"Low, high quality"},{"query":"...","strategy":"Broader","expected_results":"Medium"},{"query":"...","strategy":"Adjacent domain","expected_results":"High"},{"query":"...","strategy":"Brand specific","expected_results":"Medium"},{"query":"...","strategy":"Skills focused","expected_results":"Medium"}]}';callClaude(sys,user,function(txt,err){document.getElementById('btn-gen-booleans').disabled=false;document.getElementById('bool-gen-loading').style.display='none';if(err){alert('Error: '+err);return;}var d=parseJSON(txt);if(!d||!d.strings){alert('Could not generate');return;}document.getElementById('bool-generated-section').style.display='block';renderGeneratedBooleans(d.strings);});}
 function renderGeneratedBooleans(ss){var el=document.getElementById('bool-generated-list');var html='';ss.forEach(function(s){html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;font-weight:600;color:var(--amber);">'+escHtml(s.strategy)+'</span><span style="font-size:10px;color:var(--text3);">'+escHtml(s.expected_results||'')+'</span></div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text2);background:var(--s3);padding:8px;border-radius:4px;word-break:break-all;margin-bottom:8px;">'+escHtml(s.query)+'</div><div style="display:flex;gap:6px;"><button onclick="copyStaticBool(this,\''+escHtml(s.query).replace(/'/g,"\\'")+'\')" style="background:var(--s3);border:1px solid var(--border2);color:var(--text3);border-radius:4px;padding:5px 10px;font-size:11px;cursor:pointer;">📋 Copy</button><button onclick="saveToPositionLibrary(this,\'Generated\',\''+escHtml(s.strategy)+'\',\''+escHtml(s.query).replace(/'/g,"\\'")+'\')" style="background:var(--yellow-bg);border:1px solid var(--amber-dim);color:var(--amber);border-radius:4px;padding:5px 10px;font-size:11px;cursor:pointer;">+ Save</button></div></div>';});el.innerHTML=html;}
 init();
+// Expose globals
+window._hlState = state;
+window._hlCallClaude = callClaude;
 </script>
 </body>
 </html>
