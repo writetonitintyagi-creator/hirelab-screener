@@ -328,7 +328,7 @@ Include: Role, Company type, Location, Experience required, Key skills, Responsi
         <div class="input-row">
           <div class="field">
             <label>Server URL (Railway URL after deployment)</label>
-            <input type="text" id="server-url" value="http://localhost:8080" placeholder="https://your-app.railway.app">
+            <input type="text" id="server-url" value="http://localhost:5000" placeholder="https://your-app.railway.app">
           </div>
           <div class="field">
             <label>Gmail Address (sender)</label>
@@ -646,7 +646,7 @@ var state = {
   assignmentLabel: '',
   sheetId: '',
   sheetTab: 'Sheet1',
-  serverUrl: 'http://localhost:8080',
+  serverUrl: 'http://localhost:5000',
   gmailFrom: '',
   learningSummary: '',
   batchCount: 0,
@@ -737,11 +737,15 @@ function resetAssignment() {
   alert('Assignment reset!');
 }
 function testConnection() {
-  var key = state.claudeApiKey || (document.getElementById('claude-api-key') ? document.getElementById('claude-api-key').value.trim() : '');
-  if(key && key.startsWith('sk-ant')) {
+  var url = (document.getElementById('server-url')?document.getElementById('server-url').value:state.serverUrl)||'http://localhost:5000';
+  fetch(url+'/health').then(function(r){return r.json();}).then(function(d){
     document.getElementById('status-server').classList.add('ok');
-    document.getElementById('status-server').innerHTML = '<span class="status-dot"></span>API Ready';
-  } else {
+    document.getElementById('status-server').innerHTML='<span class="status-dot"></span>Server OK';
+  }).catch(function(){
+    document.getElementById('status-server').classList.remove('ok');
+    document.getElementById('status-server').innerHTML='<span class="status-dot"></span>Server Off';
+  });
+} else {
     document.getElementById('status-server').classList.remove('ok');
     document.getElementById('status-server').innerHTML = '<span class="status-dot"></span>API Key?';
   }
@@ -754,10 +758,9 @@ function updateLearningDisplay() {
 function clearLearning() { if(!confirm('Clear?')) return; state.learningSummary=''; saveToStorage(); updateLearningDisplay(); }
 function exportLearning() { navigator.clipboard.writeText(state.learningSummary||'No learning'); alert('Copied!'); }
 function callClaude(sys,msg,cb,retry) {
-  var url = state.serverUrl+'/api/claude';
   retry = retry||0;
-  var h = {'Content-Type':'application/json'};
-  if(state.authToken) h['X-Auth-Token']=state.authToken;
+  var url = (state.serverUrl||'http://localhost:5000')+'/api/claude';
+  var h = {'Content-Type':'application/json','X-Auth-Token': state.authToken||'HireLab2025Nitin'};
   fetch(url,{method:'POST',headers:h,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:sys,messages:[{role:'user',content:msg}]})})
   .then(function(r){return r.json();})
   .then(function(d){
@@ -765,8 +768,9 @@ function callClaude(sys,msg,cb,retry) {
     var t=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
     if(!parseJSON(t)&&retry<2){callClaude(sys,msg+'\n\nIMPORTANT: Return ONLY valid JSON.',cb,retry+1);return;}
     cb(t,null);
-  }).catch(function(e){cb(null,e.message);});
+  }).catch(function(e){cb(null,'Server not running? Start C:\\HireLab\\rh_server.py first. Error: '+e.message);});
 }
+
 function parseJSON(t) {
   t=t.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'');
   try{return JSON.parse(t);}catch(e){return null;}
